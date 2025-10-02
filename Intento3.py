@@ -35,16 +35,16 @@ if "foto_bytes" not in st.session_state:
     st.session_state.foto_bytes = None
 if "foto_descargada" not in st.session_state:
     st.session_state.foto_descargada = False
-if "interes_uni_actual" not in st.session_state:  # NUEVO: para trackear el cambio
+if "interes_uni_actual" not in st.session_state:  
     st.session_state.interes_uni_actual = "Sí"
 
 # --------------------------
-# FORMULARIO (se limpia al enviar)
+# FORMULARIO 
 # --------------------------
 st.title("🐉🤖 Registro con el Dragón y Pepper - USTA")
 st.markdown("Llena tus datos para que la universidad pueda contactarte.")
 
-# 👉 ESTE RADIO ESTÁ FUERA DEL FORM
+
 interes_uni = st.radio("¿Quieres ingresar a la Universidad Santo Tomás?", ["Sí", "No"])
 
 with st.form("form_registro", clear_on_submit=True):
@@ -55,7 +55,7 @@ with st.form("form_registro", clear_on_submit=True):
     carrera = None
     periodo = None
 
-    # 👉 Esto ahora sí se oculta en vivo
+    
     if interes_uni == "Sí":
         carrera = st.selectbox(
             "¿Qué ingeniería te gustaría estudiar?",
@@ -89,7 +89,7 @@ with st.form("form_registro", clear_on_submit=True):
 st.divider()
 
 # --------------------------
-# BLOQUE DE FOTO (aparece si form_enviado)
+# BLOQUE DE FOTO 
 # --------------------------
 if st.session_state.form_enviado:
     st.subheader("📸 Foto con Pepper y el Dragón")
@@ -102,17 +102,14 @@ if st.session_state.form_enviado:
         st.success("🎉 ¡Proceso completado! Puedes llenar otro formulario si lo deseas.")
         st.balloons()
     
-    # botón para activar cámara (aparece si no está activa y no hay foto guardada)
     elif not st.session_state.abrir_camara and st.session_state.foto_bytes is None:
         if st.button("Tomar foto"):
             st.session_state.abrir_camara = True
             st.rerun()
 
-    # mostrar camera_input sólo cuando abrir_camara == True
     elif st.session_state.abrir_camara:
         camara = st.camera_input("Haz clic para tomar tu foto")
         if camara is not None and st.session_state.foto_bytes is None:
-            # obtener bytes de la foto
             try:
                 foto_b = camara.getvalue()
             except Exception:
@@ -121,21 +118,17 @@ if st.session_state.form_enviado:
             st.session_state.abrir_camara = False
             st.rerun()
 
-    # Si hay foto en session_state, mostrar y dar opción de descarga
     elif st.session_state.foto_bytes is not None:
         img = Image.open(BytesIO(st.session_state.foto_bytes))
         st.image(img, caption="Tu foto con Pepper y el Dragón", use_container_width=True)
 
-        # Crear bytes en PNG
         buf = BytesIO()
         img.save(buf, format="PNG")
         png_bytes = buf.getvalue()
 
-        # NUEVA ESTRATEGIA: Dos columnas para mejor control
         col1, col2 = st.columns(2)
         
         with col1:
-            # Botón de descarga normal
             st.download_button(
                 label="⬇️ Descargar foto",
                 data=png_bytes,
@@ -145,9 +138,7 @@ if st.session_state.form_enviado:
             )
         
         with col2:
-            # Botón separado para "Descargar y Finalizar"
             if st.button("✅ Finalizar", use_container_width=True):
-                # Marcar que la foto fue descargada para que en el siguiente rerun se resetee
                 st.session_state.foto_descargada = True
                 st.rerun()
         
